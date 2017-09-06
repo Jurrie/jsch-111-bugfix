@@ -3,7 +3,7 @@
 
 	<groupId>org.jurr.jsch</groupId>
 	<artifactId>jsch-111-bugfix</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>A bugfix for JSCH bug 111</name>
 	<description>This artifact fixes JSCH bug 111 by providing an alternative implementation of SignatureDSA.java</description>
@@ -29,7 +29,7 @@
 		<connection>scm:git:git@github.com:Jurrie/jsch-111-bugfix.git</connection>
 		<developerConnection>scm:git:git@github.com:Jurrie/jsch-111-bugfix.git</developerConnection>
 		<url>https://github.com/Jurrie/jsch-111-bugfix/tree/master</url>
-		<tag>HEAD</tag>
+		<tag>jsch-111-bugfix-1.0.0</tag>
 	</scm>
 
 	<properties>
