@@ -1,11 +1,12 @@
 package org.jurr.jsch.bugfix111;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import com.jcraft.jsch.jce.KeyPairGenDSA;
 import org.junit.Ignore;
@@ -68,8 +69,7 @@ public class SignatureDSATest
 		final byte[] fromASN1 = signature.fromASN1ToMPINT(asn1);
 
 		final byte[] toASN1 = signature.fromMPINTtoASN1(fromASN1);
-
-		assertByteArrayNotEquals(asn1, toASN1);
+		assertFalse(Arrays.equals(asn1, toASN1));
 	}
 
 	@Test
@@ -83,46 +83,13 @@ public class SignatureDSATest
 		// Test for the 0x80 mask check
 		tests.add(new byte[] { 0x30, 0x2a, 0x2, 0x12, 0x0, (byte) 0x9c, (byte) 0xdb, (byte) 0xc8, 0x48, (byte) 0xb7, (byte) 0xb2, 0x61, (byte) 0x96, (byte) 0xe1, 0xb, 0x15, (byte) 0xf0, 0x7e, (byte) 0xac, 0x69, 0x4, 0xf, 0x2, 0x14, 0x6a, (byte) 0xbd, (byte) 0xd6, (byte) 0xe3, (byte) 0xf6, (byte) 0xba, (byte) 0xe7, (byte) 0xba, (byte) 0xd6, 0x6c, 0x2c, (byte) 0xc8, 0x53, (byte) 0x89, 0x7c, (byte) 0xe9, (byte) 0x9b, (byte) 0xb4, (byte) 0xfc, 0x9 });
 
-		for (final byte[] test : tests)
+		for (final byte[] asn1 : tests)
 		{
-			testConversionToFromASN1(test);
+			final SignatureDSA signature = new SignatureDSA();
+			final byte[] fromASN1 = signature.fromASN1ToMPINT(asn1);
+			final byte[] toASN1 = signature.fromMPINTtoASN1(fromASN1);
+			assertArrayEquals("Conversion ASN.1 -> mpint -> ASN.1 failed", asn1, toASN1);
 		}
-	}
-
-	private void testConversionToFromASN1(final byte[] asn1)
-	{
-		final SignatureDSA signature = new SignatureDSA();
-		final byte[] fromASN1 = signature.fromASN1ToMPINT(asn1);
-
-		final byte[] toASN1 = signature.fromMPINTtoASN1(fromASN1);
-
-		assertByteArrayEquals(asn1, toASN1);
-	}
-
-	private void assertByteArrayEquals(final byte[] expected, final byte[] actual)
-	{
-		assertEquals(expected.length, actual.length);
-		for (int i = 0; i < expected.length; i++)
-		{
-			assertEquals("Position " + i + " differs", expected[i], actual[i]);
-		}
-	}
-
-	private void assertByteArrayNotEquals(final byte[] expected, final byte[] actual)
-	{
-		if (expected.length != actual.length)
-		{
-			return;
-		}
-
-		for (int i = 0; i < expected.length; i++)
-		{
-			if (expected[i] != actual[i])
-			{
-				return;
-			}
-		}
-		fail("Byte arrays are equal, but expected to be different");
 	}
 
 	@Test
