@@ -69,15 +69,8 @@ public class SignatureDSA implements com.jcraft.jsch.SignatureDSA
 		// sig is in ASN.1
 		// SEQUENCE::={ r INTEGER, s INTEGER }
 
-		int len = 0;
-		int index = 3;
-		len = sig[index++] & 0xff;
-		byte[] r = new byte[len];
-		System.arraycopy(sig, index, r, 0, r.length);
-		index = index + len + 1;
-		len = sig[index++] & 0xff;
-		byte[] s = new byte[len];
-		System.arraycopy(sig, index, s, 0, s.length);
+		byte[] r = computeMPINT(sig, 3);
+		byte[] s = computeMPINT(sig, 4 + r.length + 1);
 
 		byte[] result = new byte[40];
 
@@ -86,6 +79,14 @@ public class SignatureDSA implements com.jcraft.jsch.SignatureDSA
 		System.arraycopy(r, r.length > 20 ? 1 : 0, result, r.length > 20 ? 0 : 20 - r.length, r.length > 20 ? 20 : r.length);
 		System.arraycopy(s, s.length > 20 ? 1 : 0, result, s.length > 20 ? 20 : 40 - s.length, s.length > 20 ? 20 : s.length);
 
+		return result;
+	}
+
+	private byte[] computeMPINT(final byte[] sig, final int index)
+	{
+		int len = sig[index] & 0xff;
+		byte[] result = new byte[len];
+		System.arraycopy(sig, index + 1, result, 0, result.length);
 		return result;
 	}
 
@@ -108,39 +109,13 @@ public class SignatureDSA implements com.jcraft.jsch.SignatureDSA
 			sig = tmp;
 		}
 
-		int lengthOfFrstMax20 = 20;
-		int lengthOfFrst = 20;
-		if ((sig[0] & 0x80) != 0)
-		{
-			// ASN.1 would see this as negative INTEGER, so we add a leading 0x00 byte.
-			lengthOfFrst++;
-		}
-		else
-		{
-			while (sig[20 - lengthOfFrst] == 0 && (sig[20 - lengthOfFrst + 1] & 0x80) != 0x80)
-			{
-				// The first mpint starts with redundant 0x00 bytes.
-				lengthOfFrst--;
-			}
-			lengthOfFrstMax20 = lengthOfFrst;
-		}
+		int[] lengthsFirst = computeASN1Length(sig, 0);
+		int[] lengthsSecond = computeASN1Length(sig, 20);
 
-		int lengthOfScndMax20 = 20;
-		int lengthOfScnd = 20;
-		if ((sig[20] & 0x80) != 0)
-		{
-			// ASN.1 would see this as negative INTEGER, so we add a leading 0x00 byte.
-			lengthOfScnd++;
-		}
-		else
-		{
-			while (sig[40 - lengthOfScnd] == 0 && (sig[40 - lengthOfScnd + 1] & 0x80) != 0x80)
-			{
-				// The second mpint starts with redundant 0x00 bytes.
-				lengthOfScnd--;
-			}
-			lengthOfScndMax20 = lengthOfScnd;
-		}
+		int lengthOfFrst = lengthsFirst[0];
+		int lengthOfScnd = lengthsSecond[0];
+		int lengthOfFrstMax20 = lengthsFirst[1];
+		int lengthOfScndMax20 = lengthsSecond[1];
 
 		int length = 6 + lengthOfFrst + lengthOfScnd;
 		tmp = new byte[length];
@@ -155,5 +130,26 @@ public class SignatureDSA implements com.jcraft.jsch.SignatureDSA
 		sig = tmp;
 
 		return sig;
+	}
+
+	private int[] computeASN1Length(final byte[] sig, final int index)
+	{
+		int maxLength = 20;
+		int length = 20;
+		if ((sig[index] & 0x80) != 0)
+		{
+			// ASN.1 would see this as negative INTEGER, so we add a leading 0x00 byte.
+			length++;
+		}
+		else
+		{
+			while (sig[index + 20 - length] == 0 && (sig[index + 20 - length + 1] & 0x80) != 0x80)
+			{
+				// The mpint starts with redundant 0x00 bytes.
+				length--;
+			}
+			maxLength = length;
+		}
+		return new int[] { length, maxLength };
 	}
 }
