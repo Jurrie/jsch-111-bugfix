@@ -109,13 +109,11 @@ public class SignatureDSA implements com.jcraft.jsch.SignatureDSA
 			sig = tmp;
 		}
 
-		int[] lengthsFirst = computeASN1Length(sig, 0);
-		int[] lengthsSecond = computeASN1Length(sig, 20);
+		final int lengthOfFrst = computeASN1Length(sig, 0);
+		final int lengthOfScnd = computeASN1Length(sig, 20);
 
-		int lengthOfFrst = lengthsFirst[0];
-		int lengthOfScnd = lengthsSecond[0];
-		int lengthOfFrstMax20 = lengthsFirst[1];
-		int lengthOfScndMax20 = lengthsSecond[1];
+		final int lengthOfFrstMax20 = Math.min(lengthOfFrst, 20);
+		final int lengthOfScndMax20 = Math.min(lengthOfScnd, 20);
 
 		int length = 6 + lengthOfFrst + lengthOfScnd;
 		tmp = new byte[length];
@@ -132,9 +130,8 @@ public class SignatureDSA implements com.jcraft.jsch.SignatureDSA
 		return sig;
 	}
 
-	private int[] computeASN1Length(final byte[] sig, final int index)
+	private int computeASN1Length(final byte[] sig, final int index)
 	{
-		int maxLength = 20;
 		int length = 20;
 		if ((sig[index] & 0x80) != 0)
 		{
@@ -148,8 +145,7 @@ public class SignatureDSA implements com.jcraft.jsch.SignatureDSA
 				// The mpint starts with redundant 0x00 bytes.
 				length--;
 			}
-			maxLength = length;
 		}
-		return new int[] { length, maxLength };
+		return length;
 	}
 }
