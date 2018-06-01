@@ -26,3 +26,7 @@ That all. JSCH will now use the following implementations instead of the default
 This might not be die hard cryptography, but I still hope many people review this code for potential flaws.
 Please take into account that this code is more or less based on a copy of the JSCH code.
 So when you find a bug, please (also) notify the [JSCH](http://www.jcraft.com/jsch/) team.
+
+## License
+
+This project is licensed under the [GNU Lesser General Public License version 3](http://www.gnu.org/licenses/lgpl.txt).
