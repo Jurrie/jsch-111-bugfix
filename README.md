@@ -29,4 +29,4 @@ So when you find a bug, please (also) notify the [JSCH](http://www.jcraft.com/js
 
 ## License
 
-This project is licensed under the [GNU Lesser General Public License version 3](http://www.gnu.org/licenses/lgpl.txt).
+This project is licensed under [the 3-Clause BSD License](https://opensource.org/licenses/BSD-3-Clause).
